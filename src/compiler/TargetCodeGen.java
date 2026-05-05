@@ -10,45 +10,80 @@ import java.util.*;
 public class TargetCodeGen {
 
     private final List<String> assembly = new ArrayList<>();
-    private final String[] REGS = {"R0","R1","R2","R3","R4","R5","R6","R7"};
+    private final String[] REGS = { "R0", "R1", "R2", "R3", "R4", "R5", "R6", "R7" };
     private final Map<String, String> regMap = new LinkedHashMap<>();
     private int nextReg = 0;
 
-    public List<String> getAssembly() { return assembly; }
+    public List<String> getAssembly() {
+        return assembly;
+    }
 
     /** Allocate or return existing register for a variable/temp */
     private String getReg(String var) {
-        if (regMap.containsKey(var)) return regMap.get(var);
+        if (regMap.containsKey(var))
+            return regMap.get(var);
         String reg = (nextReg < REGS.length) ? REGS[nextReg++] : "MEM[" + var + "]";
         regMap.put(var, reg);
         return reg;
     }
 
     /** Check if a string is a numeric literal */
-    private boolean isLiteral(String s) { return s != null && s.matches("-?\\d+(\\.\\d+)?"); }
+    private boolean isLiteral(String s) {
+        return s != null && s.matches("-?\\d+(\\.\\d+)?");
+    }
 
     /** Check if a string is a string/char literal */
-    private boolean isStringLiteral(String s) { return s != null && (s.startsWith("\"") || s.startsWith("'")); }
+    private boolean isStringLiteral(String s) {
+        return s != null && (s.startsWith("\"") || s.startsWith("'"));
+    }
 
     /* -- entry -------------------------------------------------- */
     public void generate(List<IntermediateCodeGen.TACInstruction> code) {
-        assembly.clear(); regMap.clear(); nextReg = 0;
+        assembly.clear();
+        regMap.clear();
+        nextReg = 0;
 
         for (IntermediateCodeGen.TACInstruction i : code) {
             switch (i.type) {
-                case "copy":          genCopy(i);          break;
-                case "binary":        genBinary(i);        break;
-                case "unary":         genUnary(i);         break;
-                case "label":         genLabel(i);         break;
-                case "goto":          genGoto(i);          break;
-                case "if_false_goto": genIfFalseGoto(i);   break;
-                case "print":         genPrint(i);         break;
-                case "printf":        genPrintfDirect(i);  break;
-                case "param":         genParam(i);         break;
-                case "call":          genCall(i);          break;
-                case "return":        genReturn(i);        break;
-                case "inc":           genInc(i);           break;
-                case "dec":           genDec(i);           break;
+                case "copy":
+                    genCopy(i);
+                    break;
+                case "binary":
+                    genBinary(i);
+                    break;
+                case "unary":
+                    genUnary(i);
+                    break;
+                case "label":
+                    genLabel(i);
+                    break;
+                case "goto":
+                    genGoto(i);
+                    break;
+                case "if_false_goto":
+                    genIfFalseGoto(i);
+                    break;
+                case "print":
+                    genPrint(i);
+                    break;
+                case "printf":
+                    genPrintfDirect(i);
+                    break;
+                case "param":
+                    genParam(i);
+                    break;
+                case "call":
+                    genCall(i);
+                    break;
+                case "return":
+                    genReturn(i);
+                    break;
+                case "inc":
+                    genInc(i);
+                    break;
+                case "dec":
+                    genDec(i);
+                    break;
             }
         }
         assembly.add("");
@@ -92,18 +127,48 @@ public class TargetCodeGen {
         }
         // Emit operation
         switch (i.op) {
-            case "+":  assembly.add("    ADD  " + dest + ", " + right); break;
-            case "-":  assembly.add("    SUB  " + dest + ", " + right); break;
-            case "*":  assembly.add("    MUL  " + dest + ", " + right); break;
-            case "/":  assembly.add("    DIV  " + dest + ", " + right); break;
-            case "%":  assembly.add("    MOD  " + dest + ", " + right); break;
-            case "==": assembly.add("    CMP  " + dest + ", " + right); assembly.add("    SETE " + dest); break;
-            case "!=": assembly.add("    CMP  " + dest + ", " + right); assembly.add("    SETNE " + dest); break;
-            case "<":  assembly.add("    CMP  " + dest + ", " + right); assembly.add("    SETL " + dest); break;
-            case ">":  assembly.add("    CMP  " + dest + ", " + right); assembly.add("    SETG " + dest); break;
-            case "<=": assembly.add("    CMP  " + dest + ", " + right); assembly.add("    SETLE " + dest); break;
-            case ">=": assembly.add("    CMP  " + dest + ", " + right); assembly.add("    SETGE " + dest); break;
-            default:   assembly.add("    ; unknown op: " + i.op); break;
+            case "+":
+                assembly.add("    ADD  " + dest + ", " + right);
+                break;
+            case "-":
+                assembly.add("    SUB  " + dest + ", " + right);
+                break;
+            case "*":
+                assembly.add("    MUL  " + dest + ", " + right);
+                break;
+            case "/":
+                assembly.add("    DIV  " + dest + ", " + right);
+                break;
+            case "%":
+                assembly.add("    MOD  " + dest + ", " + right);
+                break;
+            case "==":
+                assembly.add("    CMP  " + dest + ", " + right);
+                assembly.add("    SETE " + dest);
+                break;
+            case "!=":
+                assembly.add("    CMP  " + dest + ", " + right);
+                assembly.add("    SETNE " + dest);
+                break;
+            case "<":
+                assembly.add("    CMP  " + dest + ", " + right);
+                assembly.add("    SETL " + dest);
+                break;
+            case ">":
+                assembly.add("    CMP  " + dest + ", " + right);
+                assembly.add("    SETG " + dest);
+                break;
+            case "<=":
+                assembly.add("    CMP  " + dest + ", " + right);
+                assembly.add("    SETLE " + dest);
+                break;
+            case ">=":
+                assembly.add("    CMP  " + dest + ", " + right);
+                assembly.add("    SETGE " + dest);
+                break;
+            default:
+                assembly.add("    ; unknown op: " + i.op);
+                break;
         }
     }
 
@@ -184,7 +249,8 @@ public class TargetCodeGen {
     /** Formatted listing */
     public String toListing() {
         StringBuilder sb = new StringBuilder();
-        for (String line : assembly) sb.append(line).append("\n");
+        for (String line : assembly)
+            sb.append(line).append("\n");
         return sb.toString();
     }
 }
